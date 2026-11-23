@@ -1,0 +1,14 @@
+certifi==2026.11.20
+charset-normalizer==3.5.3
+dotenv==0.9.9
+idna==3.20
+mediacloud==5.2.0
+numpy==2.4.6
+pandas==3.1.1
+pyrate-limiter==4.5.1
+python-dateutil==4.0.0
+python-dotenv==1.2.4
+requests==2.34.2
+requests-ratelimiter==0.10.0
+tzdata==2026.6
+urllib3==2.8.0
