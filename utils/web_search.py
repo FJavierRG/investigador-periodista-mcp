@@ -4,6 +4,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 def web_search(news: list[dict]) -> list[dict]:
+    # TODO: Exponential backoff
+    
     for noticia in news:
         logger.info(f"Realizando búsqueda web para la URL: {noticia['url']}")
         html = trafilatura.fetch_url(noticia['url'])

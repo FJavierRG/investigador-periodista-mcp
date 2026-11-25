@@ -6,15 +6,18 @@ def main():
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-    busqueda = "PSOE cangrejos mesopotamicos"
+    print("iniciando")
+    busqueda = "Adamuz AND accidente AND trenes"
     mediacloud_client = MediaCloudClient()
+    print("cliente de mediacloud creado")
 
-    news = mediacloud_client.get_urls(busqueda)
+    news = mediacloud_client.get_news(busqueda)
+    print("busqueda realizada")
     if len(news) == 0:
         return print("No se han encontrado noticias para la búsqueda especificada.")
 
     news_complete = web_search(news)
-    print(news_complete)
+    print(f"Se han encontrado {len(news_complete)} noticias con información comprobable")
 
 if __name__ == "__main__":
     main()
