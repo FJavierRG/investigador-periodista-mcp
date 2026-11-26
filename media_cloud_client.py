@@ -69,16 +69,16 @@ class MediaCloudClient:
                 if e.response.status_code == 429:
                     if i+1 == max_retries:
                         logger.error(f"Maximo numero de intentos alcanzados")
-                        return []
+                        raise
                     logger.error(f"RateLimit alcanzando, reintentando {i+1}/{max_retries}")
                     delay = 2 ** i + random.uniform(0,1)
                     time.sleep(delay)
                     continue
                 logger.error(f"Error al obtener contenido de MediaCloud: {e}")
-                return []
+                raise
 
         logger.info("Todas las paginas han sido procesadas")
-        if len(pages) == 0:
+        if not pages:
             logger.warning(f"No se encontraron resultados para la búsqueda: {query}")
             return []
         
