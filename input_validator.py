@@ -4,15 +4,17 @@ import os
 from pydantic import BaseModel
 from typing import Literal
 from rich import print
+import logging
 
 load_dotenv()
 GROQ_API_KEY= os.getenv("GROQ_API_KEY")
+logger = logging.getLogger(__name__)
 
 class InputSystemValidator(BaseModel):
     input_validation: Literal['Accepted', 'Rejected']
 
 
-def model_call(user_input: str)-> str:
+def validate_input(user_input: str)-> str:
     model=ChatGroq(
         model="openai/gpt-oss-20b",
         temperature=0,
@@ -22,10 +24,12 @@ def model_call(user_input: str)-> str:
         max_retries=2,
     )
     model=model.with_structured_output(InputSystemValidator, include_raw=True)
-    
+
+    logger.info(f"input_validator: Mensaje del usuario {user_input}")
+
     messages = [
         ('system','Determina si la entrada del usuario contiene una afirmación objetiva, suficientemente delimitada'
-        'y susceptible de investigación.Rechaza las preguntas, las valoraciones puramente subjetivas y las peticiones' 
+        'y susceptible de investigación.Rechaza las preguntas directas, las valoraciones puramente subjetivas y las peticiones' 
         'que no constituyan afirmaciones.'
         'Limítate a evaluar la entrada. No investigues la afirmación ni evalúes su veracidad.'
         'El sistema, posteriormente, modelará todo un proceso de investigación periodística para dar al usuario un informe sobre'
@@ -34,10 +38,13 @@ def model_call(user_input: str)-> str:
     ]
 
     response = model.invoke(messages)
+    logger.info(response['raw'].usage_metadata)
     return response
 
-validacion = model_call("La tierra es plana")
-print(validacion['parsed'].input_validation)
-print("Analisis de la peticion\n")
-print(f"Consumo de tokens:\n Tokens de entrada: {validacion['raw'].usage_metadata['input_tokens']}\n Tokens de salida: {validacion['raw'].usage_metadata['output_tokens']}\n"
-      f"Total tokens consumidos: {validacion['raw'].usage_metadata['total_tokens']}")
+if __name__ == "__main__":
+    validacion = validate_input("La tierra es plana")
+    print(validacion['parsed'].input_validation)
+    print(validacion)
+    print("Analisis de la peticion\n")
+    print(f"Consumo de tokens:\n Tokens de entrada: {validacion['raw'].usage_metadata['input_tokens']}\n Tokens de salida: {validacion['raw'].usage_metadata['output_tokens']}\n"
+        f"Total tokens consumidos: {validacion['raw'].usage_metadata['total_tokens']}")

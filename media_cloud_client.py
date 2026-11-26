@@ -33,34 +33,40 @@ class MediaCloudClient:
         self.api_key = MEDIACLOUD_API_KEY
         self.client_search = mediacloud.api.SearchApi(self.api_key)
         self.client_directory = mediacloud.api.DirectoryApi(self.api_key)
-        self.start_date = dt.date(2025, 11, 1)
+        self.start_date = dt.date(2026, 10, 1)
         self.end_date = dt.date(2026, 11, 1)
         self.sources = [34412356, 38002034]
-        self.page_size = 10
+        self.page_size = 25
+        self.max_stories = 50
 
     def get_news(self, query: str)-> list[dict]:
+        query= "Accidente AND Trenes AND Urda AND gobierno"
         pages = []
         more_pages = True
         pagination_token = None
         inicio = time.perf_counter()
         max_retries = 4
+        logger.info(f"Fixed date: {self.start_date}/{self.end_date}")
+        # Hace falta un elemento intermedio que convierta una petición en lenguaje natural a una query para Media Cloud
+        logger.warning(f"Fixed query: {query}")
 
         for i in range(max_retries):
             try:
-                while more_pages:
+                while more_pages and len(pages)<self.max_stories:
                     page, pagination_token = self.client_search.story_list(query, self.start_date, self.end_date,
                                                                         collection_ids=self.sources,
                                                                         pagination_token=pagination_token,
-                                                                        page_size=self.page_size)
+                                                                        page_size=self.page_size
+                                                                        )
                     pages += page
-                    print("pagina extraída con éxito")
+                    logger.info("pagina extraída con éxito")
                     if pagination_token is not None:
                         more_pages = True
                     else:
                         more_pages = False
         
             except APIResponseError as e:
-                if e.response.staus_code == 429:
+                if e.response.status_code == 429:
                     if i+1 == max_retries:
                         logger.error(f"Maximo numero de intentos alcanzados")
                         return []
@@ -71,7 +77,7 @@ class MediaCloudClient:
                 logger.error(f"Error al obtener contenido de MediaCloud: {e}")
                 return []
 
-        print("Todas las paginas han sido procesadas")
+        logger.info("Todas las paginas han sido procesadas")
         if len(pages) == 0:
             logger.warning(f"No se encontraron resultados para la búsqueda: {query}")
             return []
