@@ -40,7 +40,6 @@ class MediaCloudClient:
         self.max_stories = 50
 
     def get_news(self, query: str)-> list[dict]:
-        query= "Accidente AND Trenes AND Urda AND gobierno"
         pages = []
         more_pages = True
         pagination_token = None
@@ -48,7 +47,7 @@ class MediaCloudClient:
         max_retries = 4
         logger.info(f"Fixed date: {self.start_date}/{self.end_date}")
         # Hace falta un elemento intermedio que convierta una petición en lenguaje natural a una query para Media Cloud
-        logger.warning(f"Fixed query: {query}")
+        #logger.warning(f"Fixed query: {query}")
 
         for i in range(max_retries):
             try:
@@ -79,7 +78,7 @@ class MediaCloudClient:
 
         logger.info("Todas las paginas han sido procesadas")
         if not pages:
-            logger.warning(f"No se encontraron resultados para la búsqueda: {query}")
+            logger.warning(f"No se encontraron resultados para la búsqueda: {query} Para el periodo de {self.start_date} hasta {self.end_date}")
             return []
         
         fin = time.perf_counter()
@@ -92,3 +91,11 @@ class MediaCloudClient:
         }for pagina in pages]
 
 
+def main():
+    mc_client = MediaCloudClient()
+    query = 'article_title:"Urda" AND accidente', '"Urda" AND (accidente OR colisión)', '"Urda" AND accidente AND (vehículo OR tráfico)'
+    noticias = mc_client.get_news(query=query)
+    print(noticias)
+
+if __name__ == '__main__':
+    main()
