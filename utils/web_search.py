@@ -15,6 +15,6 @@ def web_search(news: list[dict]) -> list[dict]:
         noticia['contenido'] = text
     none_count = sum(1 for noticia in news if noticia['contenido'] is None)
     clean_news = [noticia for noticia in news if noticia['contenido'] is not None]
-    logger.info(f"Se encontraron {none_count} noticias sin contenido extraído de {len(news)}")
+    logger.info(f"Se encontraron {none_count} noticias sin contenido extraible de {len(news)}")
 
     return clean_news
